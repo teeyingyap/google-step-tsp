@@ -3,6 +3,7 @@
 import sys
 import math
 import solver_greedy
+import random_greedy
 
 from common import print_tour, read_input
 
@@ -27,25 +28,27 @@ def two_opt_swap(tour, i, j):
 def two_opt(tour, cities):
     N = len(cities)
 
+    iteration = 0
+    while iteration < 500:
 
-    current_path_length = path_length(tour, cities)
-    for i in range(1, N - 1):
-        for j in range(i + 1, N):
-            if j - 1 == i:
-                continue
-            new_tour = two_opt_swap(tour, i, j)
-            new_path_length = path_length(new_tour, cities)
-            if new_path_length < current_path_length:
-                tour = new_tour
-                current_path_length = new_path_length
-
-    print(path_length(tour, cities))
+        current_path_length = path_length(tour, cities)
+        for i in range(1, N - 1):
+            for j in range(i + 1, N):
+                if j - 1 == i:
+                    continue
+                new_tour = two_opt_swap(tour, i, j)
+                new_path_length = path_length(new_tour, cities)
+                if new_path_length < current_path_length:
+                    tour = new_tour
+                    current_path_length = new_path_length
+        iteration += 1
+        print(path_length(tour, cities))
     return tour
 
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     cities = read_input(sys.argv[1])
-    tour = solver_greedy.solve(cities)
+    tour = random_greedy.solve(cities)
     optimized_tour = two_opt(tour, cities)
     print_tour(tour)
