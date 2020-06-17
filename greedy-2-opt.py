@@ -2,8 +2,7 @@
 
 import sys
 import math
-import solver_greedy
-import random_greedy
+import random
 
 from common import print_tour, read_input
 
@@ -18,37 +17,99 @@ def path_length(tour, cities):
 
 
 def two_opt_swap(tour, i, j):
-    new_tour = tour[0:i]
-    new_tour.extend(tour[j-1:i-1:-1])
-    new_tour.extend(tour[j:])
-    print(new_tour)
-    return new_tour
+    # print(i, j)
+    while j - i > 0:
+        temp = tour[i]
+        tour[i] = tour[j]
+        tour[j] = temp
+        i += 1
+        j -= 1
+    # print(tour)
+    return tour
 
 
-def two_opt(tour, cities):
+def hasShorterPath(cities, tour, a, b, c, d):
+    if (distance(cities[tour[a]], cities[tour[b]]) + distance(cities[tour[c]], cities[tour[d]])) > (distance(cities[tour[a]], cities[tour[c]]) + distance(cities[tour[b]], cities[tour[d]])):
+        return True
+    return False
+
+
+def two_opt(cities):
+    N = len(cities)
+    solutions = {}
+    for start_index in range(N):
+        iteration = 0
+        tour = solve(cities, start_index)
+        while iteration < 100:
+               
+            for i in range(0, N):
+                # a-b is the edge to compare
+                a = i
+                b = (i + 1) % N # can be zero so we mod by N
+                for j in range(i + 2, N):
+                    if (j + 1) % N == i:
+                        # no point swapping connecting edges
+                        continue
+
+                    # c-d is the edge we want to check
+                    c = j % N # can be zero so we mod by N
+                    d = (j + 1) % N
+                    if hasShorterPath(cities, tour, a, b, c, d):
+                        tour = two_opt_swap(tour, i + 1, j)
+            iteration += 1
+        solutions[path_length(tour, cities)] = tour
+        print("Path length", path_length(tour, cities))
+    print(min(solutions))
+    return solutions[min(solutions)]
+
+
+def solve(cities, k):
+    # print(cities)
     N = len(cities)
 
-    iteration = 0
-    while iteration < 500:
+    dist = [[0] * N for i in range(N)]
+    # print(dist)
+    for i in range(N):
+        for j in range(i, N):
+            dist[i][j] = dist[j][i] = distance(cities[i], cities[j])
+    # print(dist)
 
-        current_path_length = path_length(tour, cities)
-        for i in range(1, N - 1):
-            for j in range(i + 1, N):
-                if j - 1 == i:
-                    continue
-                new_tour = two_opt_swap(tour, i, j)
-                new_path_length = path_length(new_tour, cities)
-                if new_path_length < current_path_length:
-                    tour = new_tour
-                    current_path_length = new_path_length
-        iteration += 1
-        print(path_length(tour, cities))
+
+    current_city = k
+    unvisited_cities = []
+    for i in range(N):
+        if i != k:
+            unvisited_cities.append(i)
+    # always starting with the zero-th city
+    tour = [current_city]
+
+    while unvisited_cities:
+        next_city = min(unvisited_cities,
+                        key=lambda city: dist[current_city][city])
+        unvisited_cities.remove(next_city)
+        tour.append(next_city)
+        current_city = next_city
+    # print(tour)
     return tour
+    # while unvisited_cities:
+    #     next_city = choose_a_random_neighbor(dist, cities, current_city, unvisited_cities)
+    #     unvisited_cities.remove(next_city)
+    #     tour.append(next_city)
+    #     current_city = next_city
+    # print(tour)
+    return tour
+
+
+def choose_a_random_neighbor(dist, cities, current_city, unvisited_cities):
+    sorted_cities = sorted(unvisited_cities, key=lambda city: dist[current_city][city])
+    next_cities = sorted_cities[:3] # nearest n items
+    return random.choice(next_cities)
+
+
 
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     cities = read_input(sys.argv[1])
-    tour = random_greedy.solve(cities)
-    optimized_tour = two_opt(tour, cities)
+    tour = two_opt(cities)
     print_tour(tour)

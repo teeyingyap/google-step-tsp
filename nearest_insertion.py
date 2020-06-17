@@ -2,6 +2,7 @@
 # Insert each point into the tour where it would cause the smallest increase in the tour distance.
 import sys
 import math
+from random import randint
 
 from common import print_tour, read_input
 
@@ -39,7 +40,7 @@ def two_opt(cities):
     for start_index in range(N):
         iteration = 0
         tour = solve(cities, start_index)
-        while iteration < 100:
+        while iteration < 10:
                
             for i in range(0, N):
                 # a-b is the edge to compare
@@ -80,17 +81,16 @@ def solve(cities, k):
 
     # current_city = 0
     # unvisited_cities = list(range(1, N))
-
+    # current_city = randint(0, N-1)
     current_city = k
     unvisited_cities = []
     for i in range(N):
         if i != k:
             unvisited_cities.append(i)
 
-
     sub_tour = [current_city]
     
-    next_city = max(unvisited_cities,
+    next_city = min(unvisited_cities,
                         key=lambda city: dist[current_city][city])
     # print(next_city)
     sub_tour.append(next_city)
@@ -98,13 +98,13 @@ def solve(cities, k):
     sub_tour.append(current_city)
     # print(sub_tour)
     # here, sub_tour = [A, B, A]
-    # find node k not in the subtour which is farthest from any node in the subtour
+    # find node k not in the subtour which is farthest from any node in the sub-tour
     while unvisited_cities:
         # selection step
-        curr_node_r = max(unvisited_cities, key=lambda city: dist[city][sub_tour[0]])
+        curr_node_r = min(unvisited_cities, key=lambda city: dist[city][sub_tour[0]])
         for i in range(1, len(sub_tour)):
-            new_node_r = max(unvisited_cities, key=lambda city: dist[city][i])
-            if new_node_r > curr_node_r:
+            new_node_r = min(unvisited_cities, key=lambda city: dist[city][i])
+            if new_node_r < curr_node_r:
                 curr_node_r = new_node_r
         # print(curr_node_r)
         # insertion step

@@ -17,41 +17,49 @@ def path_length(tour, cities):
 
 
 def two_opt_swap(tour, i, j):
-    new_tour = tour[0:i]
-    new_tour.extend(tour[j-1:i-1:-1])
-    new_tour.extend(tour[j:])
-    print(new_tour)
-    return new_tour
+    print(i, j)
+    while j - i > 0:
+        temp = tour[i]
+        tour[i] = tour[j]
+        tour[j] = temp
+        i += 1
+        j -= 1
+    print(tour)
+    return tour
+
+
+def hasShorterPath(cities, tour, a, b, c, d):
+    if (distance(cities[tour[a]], cities[tour[b]]) + distance(cities[tour[c]], cities[tour[d]])) > (distance(cities[tour[a]], cities[tour[c]]) + distance(cities[tour[b]], cities[tour[d]])):
+        return True
+    return False
 
 
 def two_opt(cities):
     N = len(cities)
 
     iteration = 0
-
+    tour = solve(cities)
     while iteration < 500:
-        tour = solve(cities)
-
-        current_path_length = path_length(tour, cities)
-        for i in range(1, N - 1):
-            for j in range(i + 1, N):
-                if j - 1 == i:
-                    # nothing is being swapped so we continue
+           
+        for i in range(0, N):
+            # a-b is the edge to compare
+            a = i
+            b = (i + 1) % N # can be zero so we mod by N
+            for j in range(i + 2, N):
+                if (j + 1) % N == i:
+                    # no point swapping connecting edges
                     continue
-                new_tour = two_opt_swap(tour, i, j)
-                new_path_length = path_length(new_tour, cities)
-                # swap if new tour can improve total path length
-                if new_path_length < current_path_length:
-                    tour = new_tour
-                    current_path_length = new_path_length
-        if path_length(tour, cities) < 4500:
-            print(path_length(tour, cities))
-            print(iteration)
-            return tour
+
+                # c-d is the edge we want to check
+                c = j % N # can be zero so we mod by N
+                d = (j + 1) % N
+                if hasShorterPath(cities, tour, a, b, c, d):
+                    tour = two_opt_swap(tour, i + 1, j)
         iteration += 1
     print(iteration)
     print(path_length(tour, cities))
     return tour
+
 
 
 
