@@ -6,6 +6,7 @@ import solver_greedy
 import solver_random
 import permutation
 import nearest_insertion
+import greedy_2_opt
 
 CHALLENGES = 7
 BRUTE_FORCE_CHALLENGES = 2
@@ -31,13 +32,19 @@ def generate_permutation_output():
 def generate_nearest_insertion_output():
     for i in range(BRUTE_FORCE_CHALLENGES, NEAREST_INSERTION_CHALLENGES):
         cities = read_input(f'input_{i}.csv')
-        tour = nearest_insertion.two_opt(cities)
+        tour = nearest_insertion.try_all_possible_starting_city(cities)
         with open(f'output_{i}.csv', 'w') as f:
             f.write(format_tour(tour) + '\n')
 
+def generate_greedy_2_opt_output():
+    cities = read_input(f'input_{CHALLENGES - 1}.csv')
+    tour = greedy_2_opt.try_all_possible_starting_city(cities)
+    with open(f'output_{CHALLENGES - 1}.csv', 'w') as f:
+        f.write(format_tour(tour) + '\n')
 
 
 if __name__ == '__main__':
     # generate_sample_output()
     # generate_permutation_output()
     # generate_nearest_insertion_output()
+    generate_greedy_2_opt_output()

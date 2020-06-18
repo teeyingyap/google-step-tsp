@@ -1,8 +1,8 @@
-# Smallest-Increase Heuristic: 
-# Insert each point into the tour where it would cause the smallest increase in the tour distance.
+# Insert each node into the tour where it would cause the smallest increase in the tour distance.
+
 import sys
 import math
-from random import randint
+import two_opt
 
 from common import print_tour, read_input
 
@@ -16,47 +16,22 @@ def path_length(tour, cities):
                for i in range(len(tour)))
 
 
-def two_opt_swap(tour, i, j):
-    # print(i, j)
-    while j - i > 0:
-        temp = tour[i]
-        tour[i] = tour[j]
-        tour[j] = temp
-        i += 1
-        j -= 1
-    # print(tour)
-    return tour
-
-
-def hasShorterPath(cities, tour, a, b, c, d):
-    if (distance(cities[tour[a]], cities[tour[b]]) + distance(cities[tour[c]], cities[tour[d]])) > (distance(cities[tour[a]], cities[tour[c]]) + distance(cities[tour[b]], cities[tour[d]])):
-        return True
-    return False
-
-
-def two_opt(cities):
+def try_all_possible_starting_city(cities):
     N = len(cities)
-    solutions = {}
-    for start_index in range(N):
-        iteration = 0
-        tour = solve(cities, start_index)
-        while iteration < 10:
-               
-            for i in range(0, N):
-                # a-b is the edge to compare
-                a = i
-                b = (i + 1) % N # can be zero so we mod by N
-                for j in range(i + 2, N):
-                    if (j + 1) % N == i:
-                        # no point swapping connecting edges
-                        continue
+    numOfCities = N
+    isTryAll = input("Run the algorithm with each possible starting city? (y/n) ")
 
-                    # c-d is the edge we want to check
-                    c = j % N # can be zero so we mod by N
-                    d = (j + 1) % N
-                    if hasShorterPath(cities, tour, a, b, c, d):
-                        tour = two_opt_swap(tour, i + 1, j)
-            iteration += 1
+    if isTryAll.lower() != "y":
+        numOfCities = 1
+
+    dist = [[0] * N for i in range(N)]
+    # print(dist)
+    for i in range(N):
+        for j in range(i, N):
+            dist[i][j] = dist[j][i] = distance(cities[i], cities[j])
+    solutions = {}
+    for start_index in range(numOfCities):
+        tour = solve(cities, start_index, dist)
         solutions[path_length(tour, cities)] = tour
         print("Path length", path_length(tour, cities))
     print(min(solutions))
@@ -65,28 +40,19 @@ def two_opt(cities):
 
 
 
-def solve(cities, k):
+def solve(cities, k, dist):
+    N = len(cities)
     # attempt farthest insertion
     # step 1: start with a subtour which contains arbitrary starting node
     # step 2: find the farthest node from sub tour
-    N = len(cities)
-
-    dist = [[0] * N for i in range(N)]
-    # print(dist)
-    for i in range(N):
-        for j in range(i, N):
-            dist[i][j] = dist[j][i] = distance(cities[i], cities[j])
-    # print(dist)
 
 
-    # current_city = 0
-    # unvisited_cities = list(range(1, N))
-    # current_city = randint(0, N-1)
     current_city = k
     unvisited_cities = []
     for i in range(N):
         if i != k:
             unvisited_cities.append(i)
+
 
     sub_tour = [current_city]
     
@@ -129,13 +95,11 @@ def solve(cities, k):
         # print(sub_tour)
 
     tour = sub_tour[:-1]
-    print(path_length(tour, cities))
-    return tour
+    return two_opt.two_opt(cities, tour)
 
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     cities = read_input(sys.argv[1])
-    # tour = solve(cities)
-    tour = two_opt(cities)
+    tour = try_all_possible_starting_city(cities)
     print_tour(tour)
