@@ -11,15 +11,15 @@ def distance(city1, city2):
 
 
 def solve(cities):
-    print(cities)
+    # print(cities)
     N = len(cities)
 
     dist = [[0] * N for i in range(N)]
-    print(dist)
+    # print(dist)
     for i in range(N):
         for j in range(i, N):
             dist[i][j] = dist[j][i] = distance(cities[i], cities[j])
-    print(dist)
+    # print(dist)
 
 
     current_city = 0
@@ -33,11 +33,11 @@ def solve(cities):
         unvisited_cities.remove(next_city)
         tour.append(next_city)
         current_city = next_city
-    print(tour)
+    # print(tour)
     return tour
 
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     tour = solve(read_input(sys.argv[1]))
-    print_tour(tour)
+    # print_tour(tour)

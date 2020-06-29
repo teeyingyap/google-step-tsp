@@ -8,9 +8,9 @@ import permutation
 import nearest_insertion
 import greedy_2_opt
 
-CHALLENGES = 7
+CHALLENGES = 8
 BRUTE_FORCE_CHALLENGES = 2
-NEAREST_INSERTION_CHALLENGES = 6
+NEAREST_INSERTION_CHALLENGES = 8
 
 def generate_sample_output():
     for i in range(CHALLENGES):
